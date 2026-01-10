@@ -1,0 +1,1003 @@
+/* ================= ПЕРЕМЕННЫЕ И ОСНОВА ================= */
+:root {
+  --main-color: #ff0000; /* Основной цвет (красный), меняется через JS */
+  --bg-dark: #0a0a0a;
+  --panel-bg: rgba(0, 0, 0, 0.85);
+  --font-main: "Courier New", Courier, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(-35deg, #000000, #300000, #1a0000, #000000);
+  background-size: 700% 700%;
+  animation: gradientAnimation 15s ease infinite;
+  font-family: var(--font-main);
+  color: var(--main-color);
+  overflow: hidden;
+  user-select: none;
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  touch-action: manipulation;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Зона для кликов (на весь экран под интерфейсом) */
+.click-area {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+/* ================= ИНТЕРФЕЙС (КНОПКИ И МАГАЗИН) ================= */
+.ui {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 10;
+  width: 100%;
+  max-width: 600px;
+}
+
+.coins {
+  font-size: 40px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 15px var(--main-color);
+  margin-bottom: 15px;
+}
+
+.shop {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.ui div[style="font-size: 11px"] {
+  font-size: 16px !important; /* Увеличиваем подпись про 10 секунд */
+  color: #777 !important;
+}
+
+button {
+  background: #1a0000;
+  color: var(--main-color);
+  border: 2px solid var(--main-color);
+  padding: 10px 20px;
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  padding: 15px 30px; /* Увеличиваем внутренние отступы */
+  font-size: 18px; /* Делаем текст на кнопках крупнее */
+  border-width: 3px; /* Делаем рамку толще */
+}
+
+/* ЭФФЕКТЫ ДЛЯ КНОПОК */
+button:hover {
+  filter: brightness(1.3);
+  box-shadow: 0 0 15px var(--main-color);
+  background: var(--main-color);
+  color: #000;
+}
+
+button:active {
+  transform: scale(0.92);
+  filter: contrast(1.5) invert(0.1);
+}
+
+.passive {
+  margin-top: 10px;
+  font-size: 20px;
+  color: #888;
+}
+
+/* ================= ОНЛАЙН-ЧАТ (ИСПРАВЛЕННЫЙ) ================= */
+.recent-msg-panel {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  width: 350px;
+  max-height: 40vh; /* Ограничиваем высоту чата до 40% экрана */
+  display: flex;
+  flex-direction: column;
+  pointer-events: none; /* Чтобы не мешать кликам сквозь пустую зону */
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto; /* Позволяет сообщениям скроллиться внутри своей зоны */
+  padding-bottom: 10px;
+  pointer-events: auto;
+}
+
+.chat-item {
+  animation: slideIn 0.3s ease-out;
+  word-wrap: break-word;
+  font-size: 18px;
+  line-height: 1.4;
+  color: #eee;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+.chat-item strong {
+  color: var(--main-color);
+  margin-right: 5px;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Скрываем скроллбар, но оставляем прокрутку */
+.recent-msg-panel::-webkit-scrollbar {
+  width: 0;
+}
+
+/* ================= ТАЙПИНГ (ЦЕНТР) ================= */
+.typing-container {
+  position: fixed;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 30px var(--main-color);
+  z-index: 1000;
+  pointer-events: none;
+  text-align: center;
+  width: 90%;
+  letter-spacing: 4px;
+  word-break: break-all;
+  min-height: 60px;
+}
+
+.fade-out-up {
+  animation: fadeOutUp 1s forwards cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+@keyframes fadeOutUp {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -150%) scale(1.2);
+  }
+}
+
+/* ================= ЛИДЕРБОРД ================= */
+.leaderboard {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--panel-bg);
+  border: 1px solid var(--main-color);
+  padding: 15px;
+  z-index: 10;
+  width: 220px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.1);
+}
+
+.leaderboard h4 {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: 16px;
+  border-bottom: 1px solid var(--main-color);
+  padding-bottom: 5px;
+}
+
+.leaderboard ol {
+  padding-left: 25px;
+  margin: 0;
+  font-size: 13px;
+  color: #ccc;
+}
+
+.leaderboard li {
+  margin-bottom: 5px;
+}
+
+/* ================= ВИЗУАЛЬНЫЕ ЭФФЕКТЫ ================= */
+.float-text {
+  position: absolute;
+  font-weight: bold;
+  font-size: 32px;
+  color: #fff;
+  text-shadow: 0 0 10px var(--main-color);
+  pointer-events: none;
+  z-index: 999;
+  animation: floatUp 0.8s ease-out forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+}
+
+.trail-ember {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--main-color);
+  box-shadow: 0 0 12px var(--main-color);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+  animation: emberFade 0.5s ease-out forwards;
+}
+
+@keyframes emberFade {
+  0% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+}
+
+/* ================= НАСТРОЙКИ ТРЕЙЛА ================= */
+.trail-ctrl {
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  background: var(--panel-bg);
+  border: 1px solid var(--main-color);
+  padding: 12px;
+  display: none; /* Включается через JS при покупке автокликера */
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+  border-radius: 8px;
+}
+
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ================= МОДАЛЬНОЕ ОКНО ================= */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-box {
+  background: #000;
+  border: 3px solid var(--main-color);
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 0 50px var(--main-color);
+  border-radius: 12px;
+}
+
+.modal-box input {
+  background: #111;
+  border: 1px solid var(--main-color);
+  color: #fff;
+  padding: 10px;
+  width: 100%;
+  margin: 20px 0;
+  text-align: center;
+  font-family: var(--font-main);
+  outline: none;
+}
+
+.modal-box input:focus {
+  box-shadow: 0 0 10px var(--main-color);
+}
+
+/* Профиль */
+.profile-stats {
+  text-align: left;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.profile-stats p {
+  margin: 10px 0;
+  font-size: 20px;
+  color: #aaa; /* Обычный серый текст */
+}
+
+/* Убираем красный цвет для значений, делаем их такими же серыми */
+.profile-stats span {
+  color: #aaa;
+  font-weight: bold;
+}
+
+@media (max-width: 600px) {
+  .profile-stats p {
+    font-size: 18px;
+  }
+}
+
+/* БУРГЕР КНОПКА */
+.burger-menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 3000;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border: 1px solid var(--main-color);
+}
+.burger-menu span {
+  width: 25px;
+  height: 3px;
+  background: var(--main-color);
+  transition: 0.3s;
+}
+
+/* БОКОВОЕ МЕНЮ */
+.side-menu {
+  position: fixed;
+  top: 70px;
+  right: -250px;
+  width: 200px;
+  background: var(--panel-bg);
+  border: 1px solid var(--main-color);
+  transition: 0.4s;
+  z-index: 2500;
+  display: flex;
+  flex-direction: column;
+}
+.side-menu.active {
+  right: 20px;
+}
+.menu-item {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 0, 0, 0.2);
+  cursor: pointer;
+  text-align: center;
+}
+.menu-item:hover {
+  background: var(--main-color) !important;
+  color: #000 !important;
+}
+
+/* МОДАЛЬНЫЕ ОКНА */
+.game-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  display: none; /* Скрыто по умолчанию */
+  justify-content: center;
+  align-items: center;
+  z-index: 4000;
+}
+.modal-content {
+  background: #000;
+  border: 2px solid var(--main-color);
+  padding: 30px;
+  min-width: 300px;
+  text-align: center;
+}
+.game-modal.active {
+  display: flex;
+}
+
+/* Перекрываем чат */
+.recent-msg-panel {
+  z-index: 50;
+} /* Чат теперь ниже всех меню */
+
+/* Сетка достижений */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.ach-card {
+  border: 1px solid #333;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  text-align: left;
+  transition: 0.3s;
+}
+
+.ach-card.unlocked {
+  border-color: var(--main-color);
+  background: rgba(255, 0, 0, 0.1);
+  box-shadow: inset 0 0 10px var(--main-color);
+}
+
+.ach-card h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #fff;
+}
+.ach-card p {
+  margin: 5px 0 0;
+  font-size: 11px;
+  color: #888;
+}
+.ach-card.unlocked p {
+  color: var(--main-color);
+}
+
+/* Уведомление */
+.ach-notification {
+  position: fixed;
+  bottom: -100px;
+  right: 20px;
+  background: #000;
+  border: 2px solid var(--main-color);
+  padding: 15px;
+  color: #fff;
+  z-index: 5000;
+  transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.ach-notification.show {
+  bottom: 20px;
+}
+
+/* Увеличение текста */
+.modal-content h2 {
+  font-size: 36px; /* Заголовки в окнах */
+}
+
+.modal-content p,
+.menu-item {
+  font-size: 22px; /* Текст в меню и профиле */
+}
+
+/* Достижения */
+.ach-card h4 {
+  font-size: 18px;
+}
+
+.ach-card p {
+  font-size: 14px;
+}
+
+/* Оптимизация */
+/* Мобильная адаптация */
+@media (max-width: 600px) {
+  .burger-menu {
+    top: 10px;
+    right: 10px;
+    padding: 8px;
+    gap: 4px;
+    background: rgba(
+      0,
+      0,
+      0,
+      0.8
+    ); /* Более плотный фон, чтобы не сливался с чатом */
+  }
+
+  .burger-menu span {
+    width: 20px;
+    height: 2px;
+  }
+
+  .side-menu {
+    width: 180px; /* Сужаем само меню */
+    top: 60px;
+  }
+
+  .menu-item {
+    padding: 12px;
+    font-size: 16px; /* Уменьшаем шрифт в меню */
+  }
+}
+@media (max-width: 600px) {
+  .ui {
+    bottom: 15px;
+    padding: 0 10px;
+  }
+
+  .coins {
+    font-size: 32px; /* Чуть меньше на мобилках */
+    margin-bottom: 10px;
+  }
+
+  .shop {
+    flex-wrap: wrap; /* Позволяем кнопкам переноситься */
+    gap: 8px;
+  }
+
+  button {
+    flex: 1 1 45%; /* Кнопки по две в ряд */
+    padding: 10px 5px;
+    font-size: 14px;
+    min-width: 120px;
+    border-width: 2px;
+  }
+
+  /* Кнопка автокликера на мобилках пусть занимает всю ширину под первыми двумя */
+  #autoClickerBuy {
+    flex: 1 1 100%;
+  }
+
+  .passive {
+    font-size: 16px;
+  }
+
+  .chat-info {
+    font-size: 10px !important;
+  }
+}
+@media (max-width: 600px) {
+  .recent-msg-panel {
+    top: 55px; /* Опускаем ниже бургера */
+    left: 10px;
+    width: 200px; /* Сужаем, чтобы не мешал кликать в центре */
+    max-height: 180px;
+  }
+
+  .chat-item {
+    font-size: 13px; /* Компактный шрифт для чата */
+    padding: 4px 6px;
+  }
+
+  /* Текст бонуса в центре тоже уменьшим, чтобы не вылезал за края */
+  .typing-container {
+    font-size: 32px;
+    width: 95%;
+  }
+}
+/* АДАПТАЦИЯ МОДАЛЬНЫХ ОКОН ДЛЯ ТЕЛЕФОНОВ */
+@media (max-width: 600px) {
+  /* Сама подложка окна */
+  .modal-content {
+    width: 90%; /* Окно занимает 90% ширины экрана */
+    min-width: unset; /* Убираем жесткие ограничения */
+    padding: 20px; /* Уменьшаем внутренние отступы */
+    border-width: 2px;
+  }
+
+  /* Заголовки (ВАШ ПРОФИЛЬ, ДОСТИЖЕНИЯ и т.д.) */
+  .modal-content h2 {
+    font-size: 24px; /* Уменьшаем с 36px */
+    margin-bottom: 15px;
+  }
+
+  /* Текст в профиле и пункты меню */
+  .modal-content p,
+  .menu-item {
+    font-size: 18px; /* Уменьшаем с 22px */
+  }
+
+  /* Сетка достижений: переходим в одну колонку */
+  .achievements-grid {
+    grid-template-columns: 1fr; /* Одна карточка в ряд */
+    max-height: 300px; /* Ограничиваем высоту, чтобы не уходило за край */
+    gap: 8px;
+  }
+
+  .ach-card {
+    padding: 8px;
+  }
+
+  .ach-card h4 {
+    font-size: 16px;
+  }
+
+  .ach-card p {
+    font-size: 12px;
+  }
+
+  /* Лидерборд: делаем список компактнее */
+  #leaders {
+    font-size: 16px;
+    padding-left: 20px;
+  }
+
+  #leaders li {
+    margin-bottom: 8px;
+  }
+
+  /* Настройки следа (Trail) */
+  .ctrl-row {
+    flex-direction: column; /* Ставим палитру и кнопку друг под другом */
+    gap: 15px;
+  }
+
+  #trailColorPicker {
+    width: 100%; /* Растягиваем выбор цвета на всю ширину */
+    height: 40px;
+  }
+
+  #rgbToggle {
+    width: 100%; /* Кнопка RGB на всю ширину */
+  }
+
+  /* Окно ввода ника (самое первое) */
+  .modal-box {
+    width: 85%;
+    padding: 25px;
+  }
+
+  .modal-box h3 {
+    font-size: 22px;
+  }
+}
+@media (max-width: 600px) {
+  /* ... твои существующие стили ... */
+  .cps-info {
+    font-size: 14px !important;
+  }
+}
+#clickArea {
+  touch-action: none; /* Запрещает браузеру "перехватывать" палец для скролла */
+}
+
+/* ================= ИСПРАВЛЕННЫЙ ЭМОДЗИ БАР ================= */
+.emoji-bar {
+  display: flex;
+  justify-content: flex-start;
+  gap: 4px; /* Уменьшили зазор */
+  background: rgba(0, 0, 0, 0.6); /* Чуть темнее для читаемости */
+  padding: 4px; /* Минимальный внутренний отступ */
+  border-radius: 8px;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  width: fit-content; /* Сжимается под кнопки */
+  pointer-events: auto;
+  margin-top: 5px;
+}
+
+.emoji-bar button {
+  all: unset; /* КРИТИЧНО: сбрасывает все стили игровых кнопок */
+  cursor: pointer;
+  font-size: 24px; /* Размер самого эмодзи */
+  padding: 6px 8px; /* Компактные кликабельные отступы */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent; /* Убирает синюю вспышку на мобилках */
+}
+
+.emoji-bar button:active {
+  transform: scale(1.3); /* Визуальный отклик при нажатии */
+}
+
+/* Фикс для мобилок: если экран совсем узкий */
+@media (max-width: 600px) {
+  .recent-msg-panel {
+    width: auto; /* Позволяем панели подстраиваться */
+    max-width: 85vw; /* Не даем вылезать за экран */
+  }
+
+  .emoji-bar {
+    gap: 2px;
+    padding: 2px;
+  }
+
+  .emoji-bar button {
+    font-size: 20px; /* Немного уменьшаем на маленьких экранах */
+    padding: 5px;
+  }
+}
+.online-user {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+  cursor: pointer;
+  color: #fff;
+}
+.online-user:hover {
+  background: rgba(255, 0, 0, 0.1);
+}
+.emoji-fly {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  z-index: 10000;
+  pointer-events: none;
+  animation: emojiFade 1s forwards;
+}
+@keyframes emojiFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20%) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -100%) scale(1);
+  }
+}
+
+/* Скролл */
+/* Прячем полосу прокрутки для всех основных контейнеров, сохраняя скролл */
+.chat-list,
+.achievements-grid,
+#onlineList,
+#leaders {
+  -ms-overflow-style: none; /* Скрываем в Internet Explorer и Edge */
+  scrollbar-width: none; /* Скрываем в Firefox */
+}
+
+/* Скрываем полосу прокрутки в Chrome, Safari и Opera */
+.chat-list::-webkit-scrollbar,
+.achievements-grid::-webkit-scrollbar,
+#onlineList::-webkit-scrollbar,
+#leaders::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.emoji-fly-container {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: emojiFlyUp 1.2s forwards ease-out;
+}
+
+.emoji-main {
+  font-size: 70px; /* Размер эмодзи */
+  line-height: 1;
+}
+
+.emoji-sender-name {
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-top: -5px;
+  border: 1px solid var(--main-color);
+  white-space: nowrap;
+  text-shadow: 0 0 5px var(--main-color);
+}
+
+@keyframes emojiFlyUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0%) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -150%) scale(1);
+  }
+}
+
+/* OSU */
+/* Общий стиль для всех кругов */
+.osu-target,
+.osu-finish {
+  position: fixed;
+  width: 60px; /* Фиксированный размер */
+  height: 60px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px var(--main-color);
+  pointer-events: auto;
+  touch-action: none;
+  transition: background 0.2s;
+}
+
+/* Начальный круг (и обычный хит) */
+.osu-target {
+  background: rgba(150, 0, 0, 0.4); /* Темно-красный фон */
+  border: 4px solid #fff;
+  z-index: 501;
+}
+
+/* Финишный круг (куда нужно довести) */
+.osu-finish {
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px dashed #fff; /* Пунктирная граница для отличия */
+  z-index: 500;
+}
+
+/* Линия слайдера */
+.osu-slider-line {
+  position: fixed;
+  height: 12px;
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  z-index: 499;
+  transform-origin: left center;
+  pointer-events: none;
+}
+/* Анимация при нажатии */
+.osu-target.hit-anim {
+  pointer-events: none;
+  animation: osu-hit 0.4s ease-out forwards;
+}
+
+@keyframes osu-hit {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Шарик-каретка слайдера */
+.osu-ball {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  background: var(--main-color);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  z-index: 502;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 15px var(--main-color);
+}
+/* Полупрозрачная следующая точка */
+.osu-next {
+  opacity: 0.3 !important;
+  filter: grayscale(1);
+  pointer-events: none !important;
+}
+
+/* Анимация исчезновения для всей группы слайдера */
+.osu-wrapper.fade-out {
+  animation: osu-wrapper-out 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes osu-wrapper-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+/* Ограничитель для кнопок во время OSU */
+.osu-active-ui .shop-item,
+.osu-active-ui #autoClickerBuy {
+  display: none !important;
+}
+.osu-next-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 400; /* Ниже основных элементов */
+}
+.osu-target,
+.osu-finish,
+.osu-ball {
+  position: fixed;
+  transform: translate(-50%, -50%); /* Центрирует элемент по координатам */
+  border-radius: 50%;
+  /* ... остальные стили ... */
+}
+
+/* Чистый экран */
+/* --- РЕЖИМ OSU: ОЧИСТКА ЭКРАНА --- */
+
+/* 1. Скрываем всё лишнее внутри UI и другие панели */
+body.osu-active-ui .shop,
+body.osu-active-ui .passive,
+body.osu-active-ui .cps-info,
+body.osu-active-ui .chat-info,
+body.osu-active-ui .recent-msg-panel,
+body.osu-active-ui .leaderboard,
+body.osu-active-ui #typingDisplay,
+body.osu-active-ui .ach-notification {
+  display: none !important;
+}
+
+/* 2. Обнуляем позицию родительского контейнера UI, чтобы он не тянул монеты вниз */
+body.osu-active-ui .ui {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: auto !important; /* Отменяем привязку к низу */
+  left: 0 !important;
+  transform: none !important; /* Отменяем центровку старым методом */
+  width: 100% !important;
+  pointer-events: none !important;
+}
+
+/* 3. Оставляем и четко позиционируем монеты сверху по центру */
+body.osu-active-ui .coins {
+  position: absolute !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important; /* Центрируем заново */
+  margin: 0 !important;
+  font-size: 35px !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+  text-shadow: 0 0 20px var(--main-color);
+}
+
+/* 4. Оставляем бургер-меню видимым и активным */
+body.osu-active-ui .burger-menu {
+  display: flex !important;
+  visibility: visible !important;
+  z-index: 10000 !important;
+  pointer-events: auto !important;
+}

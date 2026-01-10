@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <meta charset="UTF-8" />
+    <title>Кликер с Чатом</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <body>
+    <div id="clickArea" class="click-area"></div>
+    <input
+      type="text"
+      id="mobileInput"
+      style="
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+        left: -9999px;
+      "
+    />
+
+    <div class="burger-menu" id="burgerBtn">
+      <span></span><span></span><span></span>
+    </div>
+
+    <div id="sideMenu" class="side-menu">
+      <div class="menu-item" onclick="openModal('profileModal')">ПРОФИЛЬ</div>
+      <div class="menu-item" onclick="openModal('trailModal')">ЦВЕТ СЛЕДА</div>
+      <div class="menu-item" onclick="openModal('leaderboardModal')">
+        ТОП ИГРОКОВ
+      </div>
+      <div class="menu-item" onclick="openModal('achievementsModal')">
+        ДОСТИЖЕНИЯ
+      </div>
+      <div class="menu-item" onclick="openModal('onlineModal')">В СЕТИ</div>
+      <div class="menu-item" id="osuBtn" onclick="toggleOsuMode()">
+        OSU РЕЖИМ: ВЫКЛ
+      </div>
+    </div>
+
+    <div id="profileModal" class="game-modal" onclick="closeModal(event)">
+      <div class="modal-content">
+        <h2>ВАШ ПРОФИЛЬ</h2>
+        <div class="profile-stats">
+          <p>НИК: <span id="profNick" style="color: #fff">...</span></p>
+          <hr
+            style="
+              border: 0;
+              border-top: 1px solid rgba(255, 0, 0, 0.3);
+              margin: 15px 0;
+            "
+          />
+          <p>КЛИКОВ ВСЕГО: <span id="profClicks">0</span></p>
+          <p>ОБЩИЙ БАЛАНС: $<span id="profTotalCoins">0</span></p>
+          <p>СИЛА КЛИКА: <span id="profClickPower">0</span></p>
+          <p>ПАССИВНЫЙ ДОХОД: <span id="profPassive">0</span></p>
+          <p>ДОСТИЖЕНИЯ: <span id="profAchCount">0</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="trailModal" class="game-modal" onclick="closeModal(event)">
+      <div class="modal-content" id="trailSettingsContent">
+        <h2>НАСТРОЙКИ СЛЕДА</h2>
+        <div class="ctrl-row">
+          <input type="color" id="trailColorPicker" value="#ff0000" />
+          <button id="rgbToggle">RGB: ВЫКЛ</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="leaderboardModal" class="game-modal" onclick="closeModal(event)">
+      <div class="modal-content">
+        <h2>🏆 ТОП ИГРОКОВ ПО КЛИКАМ</h2>
+        <ol id="leaders"></ol>
+      </div>
+    </div>
+
+    <div id="onlineModal" class="game-modal" onclick="closeModal(event)">
+      <div class="modal-content">
+        <h2>СЕЙЧАС В СЕТИ</h2>
+        <div
+          id="onlineList"
+          style="text-align: left; max-height: 300px; overflow-y: auto"
+        ></div>
+      </div>
+    </div>
+
+    <div id="typingDisplay" class="typing-container"></div>
+
+    <div class="ui">
+      <div class="coins">$<span id="coins">0</span></div>
+      <div class="shop">
+        <button id="clickUpgrade">
+          Клик +1 ($<span id="clickCost">10</span>)
+        </button>
+        <button id="passiveUpgrade">
+          Пассив +1 ($<span id="passiveCost">25</span>)
+        </button>
+        <button id="autoClickerBuy">Автокликер ($5000)</button>
+      </div>
+      <div class="passive">
+        Пассивный доход: <span id="passive">0</span>/сек
+      </div>
+      <div
+        class="cps-info"
+        style="font-size: 18px; color: #777; margin-top: 5px"
+      >
+        Скорость: <span id="cps">0</span> кликов/сек
+      </div>
+      <div
+        class="chat-info"
+        style="font-size: 12px; color: #555; margin-top: 5px"
+      >
+        Автоотправка сообщения через 10 сек. неактивности
+      </div>
+    </div>
+
+    <div id="nicknameModal" class="modal">
+      <div class="modal-box">
+        <h3>Введите ник</h3>
+        <input id="nicknameInput" maxlength="16" placeholder="Ваш ник" />
+        <button id="saveNick">Играть</button>
+      </div>
+    </div>
+
+    <div id="achievementsModal" class="game-modal" onclick="closeModal(event)">
+      <div class="modal-content">
+        <h2>ВАШИ ДОСТИЖЕНИЯ</h2>
+        <div id="achievementsList" class="achievements-grid"></div>
+      </div>
+    </div>
+
+    <!-- ПРОФИЛЬ ИГРОКА -->
+    <div id="userProfileModal" class="game-modal" onclick="closeModal(event)">
+      <div class="modal-content">
+        <h2 id="viewedNick">ПРОФИЛЬ</h2>
+        <div class="profile-stats">
+          <p>КЛИКОВ: <span id="viewedClicks">0</span></p>
+          <p>БАЛАНС: $<span id="viewedCoins">0</span></p>
+          <p>СИЛА КЛИКА: <span id="viewedPower">0</span></p>
+          <p>ПАССИВ: <span id="viewedPassive">0</span></p>
+          <p>ДОСТИЖЕНИЯ: <span id="viewedAchCount">0</span>/10</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="achNotify" class="ach-notification"></div>
+
+    <div
+      id="liveFeed"
+      style="
+        height: 50px;
+        color: #0f0;
+        font-family: monospace;
+        overflow: hidden;
+      "
+    ></div>
+
+    <div id="recentMessage" class="recent-msg-panel">
+      <div id="chatList" class="chat-list"></div>
+
+      <div class="emoji-bar">
+        <button onclick="sendEmoji('🔥')">🔥</button>
+        <button onclick="sendEmoji('💩')">💩</button>
+        <button onclick="sendEmoji('❤️')">❤️</button>
+        <button onclick="sendEmoji('😂')">😂</button>
+        <button onclick="sendEmoji('🖕')">🖕</button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
